@@ -21,7 +21,7 @@ const isActive = (href: string) => path.startsWith(withBase(href));
           ))}
         </ul>
       </nav>
-      <a class="btn btn-secondary nav-cta" href={withBase('/contact/')} aria-current={isActive('/contact/') ? 'page' : undefined}>Talk to us</a>
+      <a class="btn btn-shine nav-cta" href={withBase('/contact/')} aria-current={isActive('/contact/') ? 'page' : undefined}>Talk to us</a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu-sheet" aria-label="Open menu">
         <Icon name="menu" class="i-open" />
         <Icon name="close" class="i-close" />
@@ -50,12 +50,22 @@ const isActive = (href: string) => path.startsWith(withBase(href));
   .brand :global(.logo) { height: 28px; width: auto; }
   .nav-links { display: none; gap: 4px; list-style: none; padding: 0; }
   .nav-links a {
-    display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
-    color: var(--text-2); font-size: 15px; transition: color var(--dur) var(--ease);
+    position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
+    color: var(--text); font-size: 15px;
   }
-  .nav-links a:hover, .nav-links a[aria-current='page'] { color: var(--text); }
-  .nav-links a[aria-current='page'] { text-decoration: underline; text-underline-offset: 8px; text-decoration-color: var(--accent); }
-  .nav-cta { display: none; min-height: 40px; }
+  /* Hover/focus: a white underline grows in from the left and leaves to the right. Current page: a steady cyan one */
+  .nav-links a::after {
+    content: ""; position: absolute; left: 12px; right: 12px; bottom: 8px; height: 1px;
+    background: currentColor; transform: scaleX(0); transform-origin: right;
+    transition: transform var(--dur) var(--ease);
+  }
+  .nav-links a:hover::after, .nav-links a:focus-visible::after { transform: scaleX(1); transform-origin: left; }
+  .nav-links a[aria-current='page']::after { background: var(--accent); transform: scaleX(1); }
+  @media (prefers-reduced-motion: reduce) { .nav-links a::after { transition: none; } }
+  .nav-cta { display: none; min-height: 40px; padding: 0 20px; }
+  /* Rim stays glossy but still; glints travel only while no shine CTA in the page is on screen (.is-live), or on hover/focus */
+  .nav-cta { animation-play-state: paused; }
+  .nav-cta.is-live, .nav-cta:hover, .nav-cta:focus-visible { animation-play-state: running; }
   .menu-btn {
     width: 44px; height: 44px; display: inline-grid; place-items: center;
     background: none; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--text); cursor: pointer;
@@ -101,5 +111,23 @@ const isActive = (href: string) => path.startsWith(withBase(href));
       if (e.key === 'Escape' && !sheet.hidden) { setOpen(false); btn.focus(); }
     });
     matchMedia('(min-width: 900px)').addEventListener('change', (e) => { if (e.matches) setOpen(false); });
+  }
+
+  // One moving shine per view: the nav CTA's glints hand over to the page's own shine CTA while that is on screen.
+  // On the contact page itself the nav CTA stays still.
+  const cta = document.querySelector<HTMLElement>('.nav-cta');
+  if (cta && !cta.hasAttribute('aria-current')) {
+    const onScreen = new Set<Element>();
+    const update = () => cta.classList.toggle('is-live', onScreen.size === 0);
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) onScreen.add(e.target);
+        else onScreen.delete(e.target);
+      }
+      update();
+    }, { rootMargin: '-64px 0px 0px 0px' }); // --nav-h: a CTA under the sticky nav doesn't count as on screen
+    const shines = document.querySelectorAll('main .btn-shine');
+    shines.forEach((el) => io.observe(el));
+    if (!shines.length) update(); // otherwise the observer's first report sets it
   }
 </script>

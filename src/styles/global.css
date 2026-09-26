@@ -142,6 +142,42 @@ h1, h2, h3, h4, p, ul, ol, figure, blockquote { margin: 0; }
 .btn-secondary { background: transparent; color: var(--text); border-color: var(--line-strong); }
 .btn-secondary:hover { border-color: var(--text-2); }
 .btn svg { width: 16px; height: 16px; }
+
+/* Shine button (after reference references/buttons/shiny_button_3): glossy black pill, silver rim,
+   two glints travelling round the rim with a cyan fringe. For the ONE main conversion CTA per view;
+   never in forms or persistent chrome. Static rim under reduced motion or without @property. */
+@property --shine-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 300deg;
+}
+@property --shine-top { /* registered so the hover change transitions instead of snapping */
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #1d1d22;
+}
+.btn-shine {
+  --shine-top: #1d1d22;
+  color: var(--text);
+  padding: 0 28px;
+  border: 1.5px solid transparent;
+  background:
+    linear-gradient(180deg, var(--shine-top) 0%, #0c0c0e 55%, #050506 100%) padding-box,
+    conic-gradient(from var(--shine-angle),
+      transparent 0deg, rgba(59, 192, 239, .85) 14deg, #fff 22deg, rgba(255, 255, 255, 0) 36deg,
+      transparent 180deg, rgba(59, 192, 239, .85) 194deg, #fff 202deg, rgba(255, 255, 255, 0) 216deg,
+      transparent 360deg) border-box,
+    linear-gradient(180deg, #e4e4e7 0%, #6e6e78 48%, #4a4a52 70%, #9a9aa2 100%) border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .10), 0 12px 32px -12px rgba(0, 0, 0, .9);
+  animation: shine-orbit 6s linear infinite;
+  transition: --shine-top var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.btn-shine:hover { --shine-top: #2a2a31; }
+.btn-shine:active { transform: translateY(1px); }
+@keyframes shine-orbit { to { --shine-angle: 660deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .btn-shine { animation: none; }
+}
 .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
 
 .link-arrow { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; min-height: 44px; }

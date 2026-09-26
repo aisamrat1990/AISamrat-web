@@ -16,7 +16,7 @@ Then open http://localhost:4321. `npm run build` writes the static site to `dist
 
 ## Test deployment (GitHub Pages)
 
-Every push to `main` builds and publishes a test copy to **https://aisamrat1990.github.io/AISamrat-web/** via `.github/workflows/deploy-pages.yml`. It can also be run by hand from the repo's **Actions** tab.
+Live since 2026-09-26. Every push to `main` builds and publishes a test copy to **https://aisamrat1990.github.io/AISamrat-web/** via `.github/workflows/deploy-pages.yml`. It can also be run by hand from the repo's **Actions** tab.
 
 - The test build uses `DEPLOY_TARGET=github-pages` (serves from the `/AISamrat-web` subfolder) and `PUBLIC_NOINDEX=true` (noindex on every page, and `robots.txt` blocks crawlers), so search engines don't pick up the test copy.
 - One-time setup: **Settings → Pages → Source: GitHub Actions**. On a free GitHub plan the repository must be **public** for Pages to work.
@@ -66,6 +66,7 @@ Reference material and the design rulebook stay on this machine and are not comm
 - **From BayGrape (sample 2):** the structure. Services, a proper contact page, careers.
 - **From the logo:** the one accent colour, cyan `#3BC0EF`.
 - **Type:** Anek Latin (Ek Type, Indian foundry) with JetBrains Mono for labels, self-hosted via Fontsource.
+- **Buttons:** `.btn-shine`, a glossy black pill with glints orbiting a silver rim (from `references/buttons/shiny_button_3`, tinted with the logo's cyan), is used for the one main call-to-action per view. The hero pairs it with a white "See services" button, as in `shiny_button_2`. The nav "Talk to us" has the same glossy rim, but its glints only travel while no other shine button is on screen, so two never move at once. `shiny_button_1` was rejected (indigo neon glow, off-brand).
 
 ## Before launch
 

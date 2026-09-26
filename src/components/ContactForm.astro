@@ -16,11 +16,6 @@ const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
     data-email={company.email}
     novalidate
   >
-    <div class="summary" tabindex="-1" role="alert" hidden>
-      <p class="summary-title">Please fix the following:</p>
-      <ul></ul>
-    </div>
-
     <div class="grid">
       <div class="field">
         <label for="cf-name">Full name <small>(required)</small></label>
@@ -101,14 +96,6 @@ const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
   :global(.err svg) { width: 16px; height: 16px; flex: none; margin-top: 3px; }
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 
-  .summary {
-    border: 1px solid var(--danger); border-radius: 12px; padding: 16px 20px; margin-bottom: 32px; background: var(--surface);
-  }
-  .summary:focus-visible { outline-offset: 4px; }
-  .summary-title { font-weight: 600; margin-bottom: 8px; }
-  .summary ul { padding-left: 18px; display: grid; gap: 4px; }
-  .summary :global(a) { color: var(--danger); text-decoration: underline; text-underline-offset: 3px; }
-
   .actions { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
   .actions .btn[disabled] { opacity: .6; cursor: progress; }
   .status { color: var(--text-2); font-size: 14px; max-width: 48ch; }
@@ -123,8 +110,6 @@ const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
 <script>
   const form = document.querySelector<HTMLFormElement>('.contact-form');
   if (form) {
-    const summary = form.querySelector<HTMLDivElement>('.summary')!;
-    const summaryList = summary.querySelector('ul')!;
     const status = form.querySelector<HTMLParagraphElement>('.status')!;
     const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
     const success = document.querySelector<HTMLDivElement>('.success')!;
@@ -192,20 +177,11 @@ const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
       attempted = true;
       status.textContent = ''; status.classList.remove('is-error');
       const errors = validate();
-      summaryList.replaceChildren();
       if (errors.length) {
-        for (const er of errors) {
-          const li = document.createElement('li');
-          const a = document.createElement('a');
-          a.href = `#${er.id}`; a.textContent = er.msg;
-          a.addEventListener('click', (ev) => { ev.preventDefault(); document.getElementById(er.id)?.focus(); });
-          li.append(a); summaryList.append(li);
-        }
-        summary.hidden = false;
-        summary.focus();
+        // Focus the first problem field: screen readers then read its label, "invalid" and the inline error.
+        document.getElementById(errors[0].id)?.focus();
         return;
       }
-      summary.hidden = true;
 
       const data = new FormData(form);
       if ((data.get('website') as string)?.trim()) return; // honeypot tripped: drop silently
