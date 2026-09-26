@@ -1,26 +1,27 @@
 ---
+import { withBase } from '../lib/paths';
 import { Image } from 'astro:assets';
 import logo from '../assets/brand/logo-dark.png';
 import Icon from './Icon.astro';
 import { nav } from '../data/site';
 
 const path = Astro.url.pathname;
-const isActive = (href: string) => path === href || path.startsWith(href);
+const isActive = (href: string) => path.startsWith(withBase(href));
 ---
 <header class="nav">
   <div class="frame">
     <div class="wrap nav-inner">
-      <a class="brand" href="/" aria-label="AI Samrat home">
+      <a class="brand" href={withBase('/')} aria-label="AI Samrat home">
         <Image src={logo} alt="AI Samrat" height={56} loading="eager" fetchpriority="high" class="logo" />
       </a>
       <nav aria-label="Primary">
         <ul class="nav-links">
           {nav.map((item) => (
-            <li><a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a></li>
+            <li><a href={withBase(item.href)} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a></li>
           ))}
         </ul>
       </nav>
-      <a class="btn btn-secondary nav-cta" href="/contact/" aria-current={isActive('/contact/') ? 'page' : undefined}>Talk to us</a>
+      <a class="btn btn-secondary nav-cta" href={withBase('/contact/')} aria-current={isActive('/contact/') ? 'page' : undefined}>Talk to us</a>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu-sheet" aria-label="Open menu">
         <Icon name="menu" class="i-open" />
         <Icon name="close" class="i-close" />
@@ -30,10 +31,10 @@ const isActive = (href: string) => path === href || path.startsWith(href);
 </header>
 <div class="sheet" id="menu-sheet" hidden>
   <nav aria-label="Mobile">
-    {nav.map((item) => <a href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>)}
-    <a href="/contact/" aria-current={isActive('/contact/') ? 'page' : undefined}>Contact</a>
+    {nav.map((item) => <a href={withBase(item.href)} aria-current={isActive(item.href) ? 'page' : undefined}>{item.label}</a>)}
+    <a href={withBase('/contact/')} aria-current={isActive('/contact/') ? 'page' : undefined}>Contact</a>
   </nav>
-  <a class="btn btn-primary" href="/contact/">Talk to us</a>
+  <a class="btn btn-primary" href={withBase('/contact/')}>Talk to us</a>
 </div>
 
 <style>

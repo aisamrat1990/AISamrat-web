@@ -14,6 +14,18 @@ npm run dev
 
 Then open http://localhost:4321. `npm run build` writes the static site to `dist/`, ready for any static host (Vercel, Cloudflare Pages, Netlify).
 
+## Test deployment (GitHub Pages)
+
+Every push to `main` builds and publishes a test copy to **https://aisamrat1990.github.io/AISamrat-web/** via `.github/workflows/deploy-pages.yml`. It can also be run by hand from the repo's **Actions** tab.
+
+- The test build uses `DEPLOY_TARGET=github-pages` (serves from the `/AISamrat-web` subfolder) and `PUBLIC_NOINDEX=true` (noindex on every page, and `robots.txt` blocks crawlers), so search engines don't pick up the test copy.
+- One-time setup: **Settings → Pages → Source: GitHub Actions**. On a free GitHub plan the repository must be **public** for Pages to work.
+- To reproduce the test build locally:
+
+```bash
+DEPLOY_TARGET=github-pages PUBLIC_NOINDEX=true npm run build
+```
+
 ## Site
 
 | Page | File |

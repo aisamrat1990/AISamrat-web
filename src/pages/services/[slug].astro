@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../../lib/paths';
 import type { GetStaticPaths } from 'astro';
 import Base from '../../layouts/Base.astro';
 import PageHero from '../../components/PageHero.astro';
@@ -20,13 +21,13 @@ const others = services.filter((s) => s.slug !== service.slug);
   <div class="frame">
     <nav class="crumbs wrap" aria-label="Breadcrumb">
       <ol>
-        <li><a href="/services/">Services</a></li>
+        <li><a href={withBase('/services/')}>Services</a></li>
         <li aria-current="page">{service.title}</li>
       </ol>
     </nav>
     <PageHero label={`Service ${service.index}`} title={`${service.title}.`} tone={service.titleTone} intro={service.intro}>
       <div class="cta-row">
-        <a class="btn btn-primary" href="/contact/">Discuss your project</a>
+        <a class="btn btn-primary" href={withBase('/contact/')}>Discuss your project</a>
       </div>
     </PageHero>
 
@@ -58,7 +59,7 @@ const others = services.filter((s) => s.slug !== service.slug);
         <h2 class="label" id="more-title">Other services</h2>
         <ul class="others">
           {others.map((s) => (
-            <li><a href={`/services/${s.slug}/`} class="link-arrow"><span class="idx">{s.index}</span>{s.title}<Icon name="arrow" /></a></li>
+            <li><a href={withBase(`/services/${s.slug}/`)} class="link-arrow"><span class="idx">{s.index}</span>{s.title}<Icon name="arrow" /></a></li>
           ))}
         </ul>
       </div>

@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths';
 import { Image } from 'astro:assets';
 import logo from '../assets/brand/logo-dark.png';
 import { company, services } from '../data/site';
@@ -10,7 +11,7 @@ const year = new Date().getFullYear();
     <div class="wrap">
       <div class="foot">
         <div>
-          <a class="brand" href="/" aria-label="AI Samrat home">
+          <a class="brand" href={withBase('/')} aria-label="AI Samrat home">
             <Image src={logo} alt="AI Samrat" height={64} class="logo" />
           </a>
           <p class="blurb">Software, cloud, security and managed IT for businesses that want technology to simply work.</p>
@@ -18,15 +19,15 @@ const year = new Date().getFullYear();
         <div>
           <h2 class="col-title">Services</h2>
           <ul>
-            {services.map((s) => <li><a href={`/services/${s.slug}/`}>{s.title}</a></li>)}
+            {services.map((s) => <li><a href={withBase(`/services/${s.slug}/`)}>{s.title}</a></li>)}
           </ul>
         </div>
         <div>
           <h2 class="col-title">Company</h2>
           <ul>
-            <li><a href="/about/">About</a></li>
-            <li><a href="/careers/">Careers</a></li>
-            <li><a href="/contact/">Contact</a></li>
+            <li><a href={withBase('/about/')}>About</a></li>
+            <li><a href={withBase('/careers/')}>Careers</a></li>
+            <li><a href={withBase('/contact/')}>Contact</a></li>
             {company.social.map((s) => <li><a href={s.href} rel="me noopener" target="_blank">{s.label}</a></li>)}
           </ul>
         </div>

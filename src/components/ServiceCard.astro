@@ -1,11 +1,12 @@
 ---
+import { withBase } from '../lib/paths';
 import Icon from './Icon.astro';
 import type { Service } from '../data/site';
 
 interface Props { service: Service; headingLevel?: 'h2' | 'h3' }
 const { service, headingLevel = 'h3' } = Astro.props;
 const Heading = headingLevel;
-const href = `/services/${service.slug}/`;
+const href = withBase(`/services/${service.slug}/`);
 ---
 <article class="card reveal">
   <div class="card-top">

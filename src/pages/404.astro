@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths';
 import Base from '../layouts/Base.astro';
 import PageHero from '../components/PageHero.astro';
 ---
@@ -10,8 +11,8 @@ import PageHero from '../components/PageHero.astro';
       tone="It may have moved when we rebuilt the site."
     >
       <div class="cta-row">
-        <a class="btn btn-primary" href="/">Go to the homepage</a>
-        <a class="btn btn-secondary" href="/services/">See services</a>
+        <a class="btn btn-primary" href={withBase('/')}>Go to the homepage</a>
+        <a class="btn btn-secondary" href={withBase('/services/')}>See services</a>
       </div>
     </PageHero>
   </div>

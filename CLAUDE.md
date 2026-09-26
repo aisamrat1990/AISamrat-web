@@ -7,6 +7,7 @@ Astro 7 static site replacing the Wix site at aisamrat.com. Start with `README.m
 - **Content:** all copy and company facts live in `src/data/site.ts`. Company facts are verified in `assets/company_profile.md`. Never invent clients, stats, testimonials or logos (MASTER.md §1, §7).
 - **Company name:** it's **AI Samrat**, never "IT Samrat".
 - **Astro 7:** `compressHTML: true` is set deliberately (JSX whitespace mode drops spaces between inline elements). Close every HTML tag, because the Rust compiler errors on unclosed tags.
+- **Internal links:** always wrap our own paths in `withBase()` from `src/lib/paths.ts` (`href={withBase('/contact/')}`), never a bare `"/..."`. The GitHub Pages test build lives under `/AISamrat-web/`, and bare root links break there.
 - **Two-tone headings:** keep the `{' '}` between the main text and the `.tone-2` span so the accessible text doesn't run together.
 - **Hero vortex** (`src/components/HeroVortex.astro`): WebGL 1. Vertex and fragment shaders use different float precision, so never share a uniform name between them (it fails to link). If the hero copy changes, re-check its contrast over the strands (scrim and halo are in `src/pages/index.astro`).
 - **Dev server on Windows:** it can serve stale CSS after files are rewritten outside the editor. Restart it if styles don't update.

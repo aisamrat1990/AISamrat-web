@@ -1,0 +1,47 @@
+# Test deployment to GitHub Pages: https://aisamrat1990.github.io/AISamrat-web/
+# Builds with the /AISamrat-web base path and noindex on every page, so the test copy
+# stays out of search results. Production hosting is configured separately.
+#
+# One-time setup in the repo: Settings > Pages > Source: "GitHub Actions".
+# On a free GitHub plan the repository must be public for Pages to work.
+
+name: Deploy test site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_TARGET: github-pages
+      PUBLIC_NOINDEX: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Build and upload the site
+        uses: withastro/action@v6
+        with:
+          node-version: 24
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

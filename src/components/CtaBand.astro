@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/paths';
 import { company } from '../data/site';
 
 interface Props { title?: string; tone?: string }
@@ -12,7 +13,7 @@ const {
     <span class="label live">Contact</span>
     <h2 class="h2" id="cta-title">{title}{' '}<span class="tone-2">{tone}</span></h2>
     <div class="cta-row">
-      <a class="btn btn-primary" href="/contact/">Book a consultation</a>
+      <a class="btn btn-primary" href={withBase('/contact/')}>Book a consultation</a>
       <a class="btn btn-secondary" href={`mailto:${company.email}`}>{company.email}</a>
     </div>
   </div>
