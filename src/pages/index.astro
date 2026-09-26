@@ -1,0 +1,137 @@
+---
+import Base from '../layouts/Base.astro';
+import HeroVortex from '../components/HeroVortex.astro';
+import Band from '../components/Band.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import Leader from '../components/Leader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Icon from '../components/Icon.astro';
+import Approach from '../components/Approach.astro';
+import { company, services } from '../data/site';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: company.legalName,
+  alternateName: company.name,
+  url: company.url,
+  logo: `${company.url}/icon-192.png`,
+  email: company.email,
+  foundingDate: String(company.founded),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: company.address.street,
+    addressLocality: company.address.locality,
+    addressRegion: company.address.region,
+    postalCode: company.address.postalCode,
+    addressCountry: company.address.country,
+  },
+};
+---
+<Base
+  description="AI Samrat builds software, runs cloud and IT infrastructure, and secures the systems businesses depend on. Technology services from Whitefield, Bengaluru."
+  jsonLd={jsonLd}
+>
+  <div class="frame">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="stage">
+        <HeroVortex />
+        <div class="wrap">
+          <div class="hero-content">
+            <span class="label live">AI Samrat · Bengaluru, India</span>
+            <h1 class="display" id="hero-title">{company.tagline}{' '}<span class="tone-2">{company.subTagline}</span></h1>
+            <p class="lead">We build software, run cloud and IT infrastructure, and secure the systems your business depends on. Practical, scalable and measured by results.</p>
+            <div class="cta-row">
+              <a class="btn btn-primary" href="/contact/">Talk to us</a>
+              <a class="btn btn-secondary" href="/services/">See services <Icon name="arrow" /></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wrap">
+        <dl class="hero-meta">
+          <div><dt>Build</dt><dd>Software &amp; enterprise systems</dd></div>
+          <div><dt>Run</dt><dd>Cloud, infrastructure, managed IT</dd></div>
+          <div><dt>Protect</dt><dd>Cybersecurity</dd></div>
+          <div><dt>Improve</dt><dd>Consulting &amp; process optimisation</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <Band />
+
+    <section class="section" aria-labelledby="svc-title">
+      <div class="wrap">
+        <SectionHeader
+          label="Services"
+          id="svc-title"
+          title="Five practices."
+          tone="One accountable partner."
+          text="From the first line of code to the servers it runs on and the security around it, one team owns the outcome."
+        />
+        <div class="services">
+          {services.map((s) => <ServiceCard service={s} />)}
+        </div>
+      </div>
+    </section>
+
+    <Band />
+
+    <Approach text="We start from your requirements, not a product catalogue, and recommend only what earns its place." />
+
+    <Band />
+    <Leader />
+    <Band />
+    <CtaBand />
+  </div>
+</Base>
+
+<style>
+  /* Stage: vortex behind centred copy. Bottom padding keeps the funnel's waist and ground disc
+     clear of the text, as in the reference. */
+  .stage {
+    position: relative; overflow: hidden;
+    min-height: max(600px, calc(100svh - var(--nav-h) - 96px));
+    padding: clamp(64px, 12vh, 144px) 0 clamp(170px, 27vh, 300px);
+  }
+  .hero-content {
+    position: relative; z-index: 1; isolation: isolate;
+    /* Items stay full-width (grid default) so long lines wrap; text-align does the centring.
+       justify-items: center would size each item to its unwrapped width and overflow on phones. */
+    display: grid; text-align: center; max-width: 1120px; margin: 0 auto;
+  }
+  .hero-content .label { justify-self: center; }
+  /* Soft black scrim so copy keeps its contrast over bright strands. */
+  .hero-content::before {
+    content: ""; position: absolute; z-index: -1; left: 50%; top: 50%;
+    width: min(1180px, 130%); height: 135%; transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, rgba(0, 0, 0, .82), rgba(0, 0, 0, .58) 55%, transparent);
+    pointer-events: none;
+  }
+  /* Local halo: darkens only the strands directly behind glyphs (measured ≥ 4.5:1 for grey copy). */
+  .hero-content .display, .hero-content .lead, .hero-content .label {
+    text-shadow: 0 0 3px #000, 0 0 12px #000, 0 0 24px rgba(0, 0, 0, .8);
+  }
+  .display { margin: 24px 0 28px; }
+  .lead { margin: 0 auto 40px; }
+  .cta-row { justify-content: center; }
+  .hero-meta {
+    position: relative; margin: 0;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--line);
+    padding-bottom: 32px;
+  }
+  .hero-meta div { padding: 20px 20px 0 0; }
+  .hero-meta dt { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+  .hero-meta dd { margin: 6px 0 0; color: var(--text-2); font-size: 15px; }
+  @media (min-width: 768px) { .hero-meta { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+  .services { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .services { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) {
+    .services { grid-template-columns: repeat(6, 1fr); }
+    .services > :global(:nth-child(-n + 2)) { grid-column: span 3; }
+    .services > :global(:nth-child(n + 3)) { grid-column: span 2; }
+  }
+
+</style>

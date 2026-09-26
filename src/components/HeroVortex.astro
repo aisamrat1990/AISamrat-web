@@ -1,0 +1,221 @@
+---
+// Hero background: a slowly turning vortex of fine strands, after reference sample_1
+// (requested 2026-09-26). Drawn with WebGL rather than a video file: a few KB instead of
+// megabytes, sharp at any size, pauses offscreen, and renders one still frame under
+// prefers-reduced-motion. Shape parameters were tuned against the reference offline.
+---
+<div class="vortex" aria-hidden="true">
+  <canvas class="vortex-canvas"></canvas>
+</div>
+
+<style>
+  .vortex {
+    position: absolute; inset: 0; pointer-events: none;
+    /* fade the ground disc into the page at the bottom edge */
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 86%, transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 0%, #000 86%, transparent 100%);
+  }
+  .vortex-canvas { width: 100%; height: 100%; display: block; }
+</style>
+
+<script>
+  const VERT = `
+    precision highp float;
+    attribute float aS;       // position along the strand, 0 = rim of ground disc, 1 = top
+    attribute vec4 aStrand;   // start angle, twist (turns), radius jitter, brightness
+    attribute float aHot;     // 1 = brand-cyan strand
+    uniform float uTime;
+    uniform float uAspect;
+    uniform float uFocal;
+    uniform float uAlpha;
+    uniform float uPoint;
+    uniform float uPointSize;
+    varying float vAlpha;
+    varying float vHot;
+    const float TAU = 6.2831853;
+    const float G = 0.30;          // share of each strand lying on the ground disc
+    void main() {
+      float s = aS;
+      float r; float y; float lean;
+      if (s < G) {
+        float u = s / G;
+        r = mix(2.6, 0.16, pow(u, 0.55));
+        y = 0.0; lean = 0.0;
+      } else {
+        float v = (s - G) / (1.0 - G);
+        y = v * 2.8;
+        r = 0.2 + 0.06 * exp(-v * 9.0) + 1.45 * pow(v, 1.65);
+        lean = 0.18 * pow(v, 2.4);
+      }
+      r *= aStrand.z * (1.0 + 0.035 * sin(uTime * 0.6 + s * 7.0 + aStrand.x * 3.0));
+      float th = aStrand.x + aStrand.y * TAU * s + uTime * 0.22;
+      vec3 p = vec3(r * cos(th) + lean, y, r * sin(th));
+
+      // camera: eye above the ground, pitched down so the disc reads as an ellipse
+      float vy = p.y - 0.55;
+      float vz = p.z + 3.2;
+      float cp = cos(0.22); float sp = sin(0.22);
+      float yc = vy * cp + vz * sp;
+      float zc = max(vz * cp - vy * sp, 0.05);
+      gl_Position = vec4(uFocal * p.x / zc / uAspect, uFocal * yc / zc - 0.86, 0.0, 1.0);
+      gl_PointSize = uPointSize;
+
+      float fade = min(1.0, s / 0.12) * min(1.0, (1.0 - s) / 0.05);
+      float back = 1.0 - 0.55 * clamp((zc - 2.9) / 1.2, 0.0, 1.0);   // far side of the funnel is dimmer
+      vAlpha = uAlpha * aStrand.w * fade * back * (uPoint > 0.5 ? 4.0 : 1.0);
+      vHot = aHot;
+    }`;
+
+  const FRAG = `
+    precision mediump float;
+    // Separate from the vertex shader's uPoint: WebGL 1 refuses to link a uniform
+    // declared at different precisions in the two shaders.
+    uniform float uRound;
+    varying float vAlpha;
+    varying float vHot;
+    void main() {
+      if (uRound > 0.5 && length(gl_PointCoord - 0.5) > 0.5) discard;
+      vec3 col = mix(vec3(0.92, 0.92, 0.94), vec3(0.231, 0.753, 0.937), vHot);
+      gl_FragColor = vec4(col * vAlpha, vAlpha);
+    }`;
+
+  const canvas = document.querySelector<HTMLCanvasElement>('.vortex-canvas');
+  if (canvas) {
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const small = matchMedia('(max-width: 767px)').matches;
+    const N = small ? 240 : 420;       // strands
+    const SEG = small ? 110 : 140;     // segments per strand
+    const SPARKS = small ? 140 : 260;
+
+    let gl: WebGLRenderingContext | null = null;
+    let prog: WebGLProgram | null = null;
+    let lineBuf: WebGLBuffer | null = null, pointBuf: WebGLBuffer | null = null;
+    let lineCount = 0, pointCount = 0;
+    let u: Record<string, WebGLUniformLocation | null> = {};
+    let running = false, visible = true, raf = 0;
+    const t0 = performance.now();
+
+    // Deterministic pseudo-random so the shape is identical on every load.
+    let seed = 3;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+    const compile = (type: number, src: string) => {
+      const sh = gl!.createShader(type)!;
+      gl!.shaderSource(sh, src); gl!.compileShader(sh);
+      if (!gl!.getShaderParameter(sh, gl!.COMPILE_STATUS)) throw new Error(gl!.getShaderInfoLog(sh) || 'shader');
+      return sh;
+    };
+
+    const init = () => {
+      gl = canvas.getContext('webgl', { antialias: true, alpha: true, premultipliedAlpha: true, powerPreference: 'low-power' });
+      if (!gl) return false;
+      prog = gl.createProgram()!;
+      gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+      gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+      gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) || 'link failed');
+      gl.useProgram(prog);
+
+      seed = 3;
+      const strands = Array.from({ length: N }, (_, i) => [
+        rnd() * Math.PI * 2, 1.9 + (rnd() - 0.5) * 0.5, 0.88 + rnd() * 0.24, 0.35 + rnd() * 0.65, i % 14 === 0 ? 1 : 0,
+      ]);
+      // Lines: two vertices per segment. Layout per vertex: s, strand(4), hot.
+      const lines = new Float32Array(N * SEG * 2 * 6);
+      let k = 0;
+      for (const st of strands) {
+        for (let j = 0; j < SEG; j++) {
+          for (const s of [j / SEG, (j + 1) / SEG]) {
+            lines[k++] = s; lines[k++] = st[0]; lines[k++] = st[1]; lines[k++] = st[2]; lines[k++] = st[3]; lines[k++] = st[4];
+          }
+        }
+      }
+      lineCount = N * SEG * 2;
+      const points = new Float32Array(SPARKS * 6);
+      k = 0;
+      for (let i = 0; i < SPARKS; i++) {
+        const st = strands[Math.floor(rnd() * N)];
+        points[k++] = 0.3 + rnd() * 0.68; points[k++] = st[0]; points[k++] = st[1]; points[k++] = st[2]; points[k++] = st[3]; points[k++] = st[4];
+      }
+      pointCount = SPARKS;
+
+      lineBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, lineBuf); gl.bufferData(gl.ARRAY_BUFFER, lines, gl.STATIC_DRAW);
+      pointBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, pointBuf); gl.bufferData(gl.ARRAY_BUFFER, points, gl.STATIC_DRAW);
+
+      for (const name of ['uTime', 'uAspect', 'uFocal', 'uAlpha', 'uPoint', 'uRound', 'uPointSize']) u[name] = gl.getUniformLocation(prog, name);
+      gl.disable(gl.DEPTH_TEST);
+      gl.enable(gl.BLEND);
+      gl.blendFunc(gl.ONE, gl.ONE); // additive: overlapping strands brighten, like the reference
+      gl.clearColor(0, 0, 0, 0);
+      return true;
+    };
+
+    const bindAttribs = (buf: WebGLBuffer | null) => {
+      const g = gl!, p = prog!;
+      g.bindBuffer(g.ARRAY_BUFFER, buf);
+      const stride = 6 * 4;
+      const aS = g.getAttribLocation(p, 'aS'), aStrand = g.getAttribLocation(p, 'aStrand'), aHot = g.getAttribLocation(p, 'aHot');
+      g.enableVertexAttribArray(aS); g.vertexAttribPointer(aS, 1, g.FLOAT, false, stride, 0);
+      g.enableVertexAttribArray(aStrand); g.vertexAttribPointer(aStrand, 4, g.FLOAT, false, stride, 4);
+      g.enableVertexAttribArray(aHot); g.vertexAttribPointer(aHot, 1, g.FLOAT, false, stride, 20);
+    };
+
+    let dpr = 1;
+    const resize = () => {
+      if (!gl) return;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = Math.max(1, Math.round(canvas.clientWidth * dpr));
+      const h = Math.max(1, Math.round(canvas.clientHeight * dpr));
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      gl.viewport(0, 0, w, h);
+    };
+
+    const draw = (seconds: number) => {
+      if (!gl) return;
+      const aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
+      // Narrow screens: pull the camera back a little so more of the funnel fits.
+      const focal = 1.55 * Math.min(1, 0.55 + 0.45 * aspect / 1.6);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.uniform1f(u.uTime, seconds);
+      gl.uniform1f(u.uAspect, aspect);
+      gl.uniform1f(u.uFocal, focal);
+      gl.uniform1f(u.uAlpha, 0.16 * (dpr > 1.5 ? 1.35 : 1));  // 1px lines read thinner on dense screens
+      gl.uniform1f(u.uPoint, 0);
+      gl.uniform1f(u.uRound, 0);
+      bindAttribs(lineBuf);
+      gl.drawArrays(gl.LINES, 0, lineCount);
+      gl.uniform1f(u.uPoint, 1);
+      gl.uniform1f(u.uRound, 1);
+      gl.uniform1f(u.uPointSize, 2 * dpr);
+      bindAttribs(pointBuf);
+      gl.drawArrays(gl.POINTS, 0, pointCount);
+    };
+
+    const frame = () => {
+      draw((performance.now() - t0) / 1000);
+      raf = requestAnimationFrame(frame);
+    };
+    const start = () => {
+      if (running || reduce || !gl || !visible || document.hidden) return;
+      running = true; raf = requestAnimationFrame(frame);
+    };
+    const stop = () => { running = false; cancelAnimationFrame(raf); };
+
+    try {
+      if (init()) {
+        resize();
+        draw(reduce ? 6 : 0);
+        new ResizeObserver(() => { resize(); if (!running) draw(reduce ? 6 : (performance.now() - t0) / 1000); }).observe(canvas);
+        new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible ? start() : stop(); }).observe(canvas);
+        document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+        canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); stop(); gl = null; });
+        canvas.addEventListener('webglcontextrestored', () => { if (init()) { resize(); draw(0); start(); } });
+        start();
+      }
+    } catch (err) {
+      // No WebGL or a shader failure: the hero simply stays black, which is the designed fallback.
+      console.warn('[hero-vortex]', err);
+      stop();
+    }
+  }
+</script>

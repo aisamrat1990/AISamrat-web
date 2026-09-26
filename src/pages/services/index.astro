@@ -1,0 +1,64 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Band from '../../components/Band.astro';
+import Icon from '../../components/Icon.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import { services } from '../../data/site';
+---
+<Base
+  title="Services"
+  description="Software development, cloud and IT infrastructure, digital transformation and consulting, cybersecurity, and managed IT support from AI Samrat, Bengaluru."
+>
+  <div class="frame">
+    <PageHero
+      label="Services"
+      title="Five practices."
+      tone="One accountable partner."
+      intro="From the first line of code to the servers it runs on and the security around it, one team owns the outcome."
+    />
+    <Band />
+    <section class="section" aria-label="All services">
+      <div class="wrap">
+        <ol class="svc-list">
+          {services.map((s) => (
+            <li class="reveal">
+              <a href={`/services/${s.slug}/`} class="row">
+                <span class="idx">{s.index}</span>
+                <Icon name={s.icon} class="icon" />
+                <span class="text">
+                  <h2 class="h3 title">{s.title}</h2>
+                  <span class="sum">{s.summary}</span>
+                </span>
+                <Icon name="arrow" class="go" />
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+    <Band />
+    <CtaBand />
+  </div>
+</Base>
+
+<style>
+  .svc-list { list-style: none; padding: 0; border-top: 1px solid var(--line); }
+  .svc-list li { border-bottom: 1px solid var(--line); }
+  .row {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 16px 20px; align-items: center;
+    padding: 32px 8px; transition: background-color var(--dur) var(--ease);
+  }
+  .row:hover { background: var(--surface); }
+  .idx { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; color: var(--text-3); }
+  .row :global(.icon) { display: none; width: 24px; height: 24px; color: var(--text-2); transition: color var(--dur) var(--ease); }
+  .text { display: grid; gap: 6px; }
+  .sum { color: var(--text-2); max-width: 60ch; }
+  .row :global(.go) { width: 20px; height: 20px; color: var(--text-3); transition: transform var(--dur) var(--ease), color var(--dur) var(--ease); }
+  .row:hover :global(.go) { transform: translateX(4px); color: var(--text); }
+  .row:hover :global(.icon) { color: var(--accent); }
+  @media (min-width: 768px) {
+    .row { grid-template-columns: 48px 32px 1fr auto; padding: 40px 16px; }
+    .row :global(.icon) { display: block; }
+  }
+</style>

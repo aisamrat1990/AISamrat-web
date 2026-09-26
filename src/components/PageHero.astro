@@ -1,0 +1,25 @@
+---
+// Hero for inner pages: label, two-tone h1, one intro paragraph, optional actions via slot.
+interface Props {
+  label: string;
+  title: string;
+  tone?: string;
+  intro?: string;
+}
+const { label, title, tone, intro } = Astro.props;
+---
+<section class="page-hero" aria-labelledby="page-title">
+  <div class="wrap">
+    <span class="label live">{label}</span>
+    <h1 class="h1" id="page-title">{title}{tone && ' '}{tone && <span class="tone-2">{tone}</span>}</h1>
+    {intro && <p class="lead">{intro}</p>}
+    <slot />
+  </div>
+</section>
+
+<style>
+  .page-hero { padding: clamp(64px, 12vh, 136px) 0 clamp(56px, 9vh, 96px); }
+  .h1 { margin: 24px 0 28px; max-width: 16em; }
+  .lead { margin-bottom: 0; }
+  .page-hero :global(.cta-row) { margin-top: 40px; }
+</style>

@@ -1,0 +1,44 @@
+---
+import Icon from './Icon.astro';
+import type { Service } from '../data/site';
+
+interface Props { service: Service; headingLevel?: 'h2' | 'h3' }
+const { service, headingLevel = 'h3' } = Astro.props;
+const Heading = headingLevel;
+const href = `/services/${service.slug}/`;
+---
+<article class="card reveal">
+  <div class="card-top">
+    <span class="idx">{service.index}</span>
+    <Icon name={service.icon} class="icon" />
+  </div>
+  <Heading class="h3"><a href={href} class="stretched">{service.title}</a></Heading>
+  <p>{service.summary}</p>
+  <ul class="chips" aria-label="Includes">
+    {service.chips.map((c) => <li>{c}</li>)}
+  </ul>
+</article>
+
+<style>
+  .card {
+    position: relative;
+    background: var(--surface); border: 1px solid var(--line-strong); border-radius: 12px;
+    padding: 32px; display: flex; flex-direction: column; gap: 16px; min-height: 280px;
+    transition: border-color var(--dur) var(--ease);
+  }
+  .card:hover, .card:focus-within { border-color: var(--text-3); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .idx { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; color: var(--text-3); }
+  .card :global(.icon) { width: 24px; height: 24px; color: var(--text-2); transition: color var(--dur) var(--ease); }
+  .card:hover :global(.icon), .card:focus-within :global(.icon) { color: var(--accent); }
+  p { color: var(--text-2); }
+  /* Whole card is clickable via the heading link; keeps a single tab stop per card. */
+  .stretched::after { content: ""; position: absolute; inset: 0; border-radius: 12px; }
+  .stretched:focus-visible { outline: none; }
+  .stretched:focus-visible::after { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding: 8px 0 0; list-style: none; }
+  .chips li {
+    font-family: var(--font-mono); font-size: 12px; line-height: 1;
+    padding: 8px 10px; border-radius: 999px; background: var(--raised); color: var(--text-2); white-space: nowrap;
+  }
+</style>

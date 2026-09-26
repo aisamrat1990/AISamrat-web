@@ -1,0 +1,107 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Band from '../components/Band.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Leader from '../components/Leader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import { company, mission, vision, values } from '../data/site';
+---
+<Base
+  title="About"
+  description="AI Samrat Private Limited is a Bengaluru technology company delivering software, cloud, cybersecurity and managed IT services with a practical, client-focused approach."
+>
+  <div class="frame">
+    <PageHero
+      label="About AI Samrat"
+      title="Practical technology."
+      tone="Long-term partnerships."
+      intro="AI Samrat is a technology company in Whitefield, Bengaluru. We deliver end-to-end IT services, from software development and cloud to cybersecurity and managed IT, with a client-focused approach: tailoring the work to each business, and combining technology, operational efficiency and business understanding to get results that last."
+    />
+
+    <Band />
+
+    <section class="section" aria-labelledby="mv-title">
+      <div class="wrap">
+        <h2 class="sr-only" id="mv-title">Mission and vision</h2>
+        <div class="mv">
+          <div class="reveal">
+            <span class="label">Mission</span>
+            <p class="statement">{mission}</p>
+          </div>
+          <div class="reveal">
+            <span class="label">Vision</span>
+            <p class="statement">{vision}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <Band />
+
+    <section class="section" aria-labelledby="values-title">
+      <div class="wrap">
+        <SectionHeader
+          label="Values"
+          id="values-title"
+          title="What we hold to."
+          tone="On every engagement."
+          text="Eight principles guide how we work with clients and with each other."
+        />
+        <ol class="values">
+          {values.map((v, i) => (
+            <li class="reveal"><span class="idx" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>{v}</li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <Band />
+    <Leader showBody />
+    <Band />
+
+    <section class="section" aria-labelledby="facts-title">
+      <div class="wrap">
+        <h2 class="label" id="facts-title">Company details</h2>
+        <dl class="facts">
+          <div><dt>Legal name</dt><dd>{company.legalName}</dd></div>
+          <div><dt>Incorporated</dt><dd>{company.founded}, Karnataka</dd></div>
+          <div><dt>CIN</dt><dd class="mono">{company.cin}</dd></div>
+          <div><dt>GST</dt><dd class="mono">{company.gst}</dd></div>
+          <div class="wide"><dt>Registered office</dt><dd>{company.address.lines.join(', ')}</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <Band />
+    <CtaBand />
+  </div>
+</Base>
+
+<style>
+  .mv { display: grid; gap: 48px; }
+  @media (min-width: 900px) { .mv { grid-template-columns: 1fr 1fr; gap: 64px; } }
+  .statement {
+    margin-top: 20px; font-size: clamp(22px, 2.4vw, 28px); line-height: 1.35; letter-spacing: -.01em;
+    color: var(--text); max-width: 30em; text-wrap: pretty;
+  }
+
+  .values {
+    list-style: none; padding: 0; display: grid; grid-template-columns: 1fr;
+    border-top: 1px solid var(--line); border-left: 1px solid var(--line);
+  }
+  @media (min-width: 560px) { .values { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .values { grid-template-columns: repeat(4, 1fr); } }
+  .values li {
+    display: grid; gap: 16px; align-content: start; padding: 24px;
+    border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    font-size: 20px; font-weight: 600; letter-spacing: -.01em; min-height: 120px;
+  }
+  .idx { font-family: var(--font-mono); font-size: 12px; font-weight: 400; letter-spacing: .08em; color: var(--text-3); }
+
+  .facts { margin-top: 24px; display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--line); }
+  @media (min-width: 768px) { .facts { grid-template-columns: repeat(2, 1fr); column-gap: 32px; } .facts .wide { grid-column: 1 / -1; } }
+  .facts div { padding: 16px 0; border-bottom: 1px solid var(--line); display: grid; gap: 4px; }
+  .facts dt { font-size: 14px; color: var(--text-3); }
+  .facts dd { margin: 0; color: var(--text); }
+</style>

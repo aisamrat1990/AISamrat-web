@@ -1,0 +1,33 @@
+# build output
+dist/
+# Astro generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+*.log
+npm-debug.log*
+
+# environment variables (keep an example file if one is added)
+.env
+.env.*
+!.env.example
+
+# local-only material: recordings, frames, notes, source files, design-system rulebook and mockup
+references/
+design-system/
+
+# tool caches and personal settings
+.impeccable/hook.cache.json
+.impeccable/config.local.json
+.claude/settings.local.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/*
+!.vscode/extensions.json

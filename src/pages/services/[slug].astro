@@ -1,0 +1,95 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Band from '../../components/Band.astro';
+import SectionHeader from '../../components/SectionHeader.astro';
+import CtaBand from '../../components/CtaBand.astro';
+import Icon from '../../components/Icon.astro';
+import Approach from '../../components/Approach.astro';
+import { services, type Service } from '../../data/site';
+
+export const getStaticPaths = (() =>
+  services.map((service) => ({ params: { slug: service.slug }, props: { service } }))) satisfies GetStaticPaths;
+
+interface Props { service: Service }
+const { service } = Astro.props;
+const others = services.filter((s) => s.slug !== service.slug);
+---
+<Base title={service.title} description={`${service.intro} AI Samrat, Bengaluru.`}>
+  <div class="frame">
+    <nav class="crumbs wrap" aria-label="Breadcrumb">
+      <ol>
+        <li><a href="/services/">Services</a></li>
+        <li aria-current="page">{service.title}</li>
+      </ol>
+    </nav>
+    <PageHero label={`Service ${service.index}`} title={`${service.title}.`} tone={service.titleTone} intro={service.intro}>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/contact/">Discuss your project</a>
+      </div>
+    </PageHero>
+
+    <Band />
+
+    <section class="section" aria-labelledby="inc-title">
+      <div class="wrap">
+        <SectionHeader label="What’s included" id="inc-title" title="What we cover." tone="Scoped to what you need." />
+        <ul class="includes">
+          {service.includes.map((i) => (
+            <li class="reveal">
+              <Icon name={service.icon} class="icon" />
+              <h3 class="h3">{i.title}</h3>
+              <p>{i.text}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <Band />
+
+    <Approach />
+
+    <Band />
+
+    <section class="section" aria-labelledby="more-title">
+      <div class="wrap">
+        <h2 class="label" id="more-title">Other services</h2>
+        <ul class="others">
+          {others.map((s) => (
+            <li><a href={`/services/${s.slug}/`} class="link-arrow"><span class="idx">{s.index}</span>{s.title}<Icon name="arrow" /></a></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <Band />
+    <CtaBand />
+  </div>
+</Base>
+
+<style>
+  .crumbs { padding-top: 24px; }
+  .crumbs ol { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; font-size: 14px; color: var(--text-3); }
+  .crumbs li + li::before { content: "/"; margin-right: 8px; color: var(--line-strong); }
+  .crumbs a { color: var(--text-2); display: inline-flex; min-height: 44px; align-items: center; }
+  .crumbs a:hover { color: var(--text); }
+  .crumbs li[aria-current] { display: inline-flex; min-height: 44px; align-items: center; }
+  .crumbs + :global(.page-hero) { padding-top: clamp(32px, 6vh, 72px); }
+
+  .includes { list-style: none; padding: 0; display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 768px) { .includes { grid-template-columns: repeat(2, 1fr); } }
+  .includes li {
+    background: var(--surface); border: 1px solid var(--line-strong); border-radius: 12px;
+    padding: 32px; display: grid; gap: 12px; align-content: start;
+  }
+  .includes :global(.icon) { width: 24px; height: 24px; color: var(--text-3); margin-bottom: 8px; }
+  .includes p { color: var(--text-2); }
+
+  .others { list-style: none; padding: 0; margin-top: 24px; display: grid; gap: 0 32px; grid-template-columns: 1fr; border-top: 1px solid var(--line); }
+  @media (min-width: 768px) { .others { grid-template-columns: repeat(2, 1fr); } }
+  .others li { border-bottom: 1px solid var(--line); }
+  .others a { padding: 12px 0; width: 100%; font-size: 17px; }
+  .others .idx { font-family: var(--font-mono); font-size: 12px; color: var(--text-3); letter-spacing: .08em; margin-right: 8px; font-weight: 400; }
+</style>

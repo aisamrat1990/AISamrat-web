@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Band from '../components/Band.astro';
+import ContactForm from '../components/ContactForm.astro';
+import Icon from '../components/Icon.astro';
+import { company } from '../data/site';
+---
+<Base
+  title="Contact"
+  description="Contact AI Samrat in Whitefield, Bengaluru about software development, cloud and IT infrastructure, cybersecurity or managed IT."
+>
+  <div class="frame">
+    <PageHero
+      label="Contact"
+      title="Tell us what you’re working on."
+      tone="We’ll tell you honestly how we can help."
+    />
+
+    <Band />
+
+    <section class="section" aria-label="Contact details and form">
+      <div class="wrap panels">
+        <aside class="details" aria-labelledby="details-title">
+          <h2 class="label" id="details-title">Reach us directly</h2>
+          <ul>
+            <li>
+              <Icon name="mail" class="icon" />
+              <div>
+                <span class="k">Email</span>
+                <a class="inline-link v" href={`mailto:${company.email}`}>{company.email}</a>
+              </div>
+            </li>
+            <li>
+              <Icon name="pin" class="icon" />
+              <div>
+                <span class="k">Office</span>
+                <address class="v">{company.address.lines.map((l) => <span>{l}</span>)}</address>
+                <a class="link-arrow map" href={company.address.mapUrl} target="_blank" rel="noopener">Open in Google Maps<Icon name="arrow" /></a>
+              </div>
+            </li>
+          </ul>
+          <p class="legal">{company.legalName} · CIN {company.cin}</p>
+        </aside>
+
+        <div class="form-panel">
+          <h2 class="h3 form-title">Send us a message</h2>
+          <ContactForm />
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .panels { display: grid; gap: 48px; }
+  @media (min-width: 1024px) { .panels { grid-template-columns: 5fr 7fr; gap: 64px; align-items: start; } }
+
+  .details ul { list-style: none; padding: 0; margin-top: 24px; border-top: 1px solid var(--line); }
+  .details li { display: grid; grid-template-columns: 24px 1fr; gap: 16px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+  .details :global(.icon) { width: 20px; height: 20px; color: var(--text-3); margin-top: 2px; }
+  .k { display: block; font-size: 14px; color: var(--text-3); margin-bottom: 4px; }
+  .v { font-size: 17px; }
+  a.v { display: inline-flex; min-height: 44px; align-items: center; margin-top: -10px; }
+  address { font-style: normal; color: var(--text); display: grid; }
+  .map { margin-top: 8px; color: var(--text-2); font-size: 14px; }
+  .map:hover { color: var(--text); }
+  .legal { margin-top: 24px; font-size: 13px; color: var(--text-3); }
+
+  .form-panel {
+    background: var(--surface); border: 1px solid var(--line-strong); border-radius: 12px;
+    padding: 24px;
+  }
+  @media (min-width: 768px) { .form-panel { padding: 40px; } }
+  .form-title { margin-bottom: 24px; }
+</style>

@@ -1,0 +1,18 @@
+---
+interface Props {
+  label: string;
+  title: string;
+  tone?: string;
+  text?: string;
+  id?: string;
+  live?: boolean;
+}
+const { label, title, tone, text, id, live = false } = Astro.props;
+---
+<div class="sec-head reveal">
+  <div>
+    <span class:list={['label', { live }]}>{label}</span>
+    <h2 class="h2" id={id}>{title}{tone && ' '}{tone && <span class="tone-2">{tone}</span>}</h2>
+  </div>
+  {text && <p class="body-2">{text}</p>}
+</div>

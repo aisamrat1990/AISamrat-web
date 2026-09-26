@@ -1,0 +1,88 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import Band from '../components/Band.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Icon from '../components/Icon.astro';
+import { company, openRoles, values } from '../data/site';
+
+const cvHref = `mailto:${company.email}?subject=${encodeURIComponent('Career enquiry')}`;
+---
+<Base
+  title="Careers"
+  description="Work with AI Samrat in Whitefield, Bengaluru. See open roles or send us your CV."
+>
+  <div class="frame">
+    <PageHero
+      label="Careers"
+      title="Build technology businesses rely on."
+      tone="Grow with a team that ships."
+      intro="We’re a Bengaluru technology company working across software, cloud, security and managed IT. We look for people who care about getting the details right for clients."
+    />
+
+    <Band />
+
+    <section class="section" aria-labelledby="roles-title">
+      <div class="wrap">
+        <SectionHeader label="Open roles" id="roles-title" title="Current openings." live={openRoles.length > 0} />
+        {openRoles.length > 0 ? (
+          <ul class="roles">
+            {openRoles.map((r) => (
+              <li class="reveal">
+                <div>
+                  <h3 class="h3">{r.title}</h3>
+                  <p class="meta">{r.type} · {r.location}</p>
+                  <p class="body-2">{r.summary}</p>
+                </div>
+                <a class="btn btn-secondary" href={`mailto:${company.email}?subject=${encodeURIComponent(`Application: ${r.title}`)}`}>Apply</a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div class="empty reveal">
+            <p class="h3">No open roles are listed right now.</p>
+            <p class="body-2">We’re always glad to hear from good people. Send your CV and a few lines about the work you want to do, and we’ll keep it on file for upcoming openings.</p>
+            <a class="btn btn-primary" href={cvHref}><Icon name="mail" />Send your CV</a>
+          </div>
+        )}
+      </div>
+    </section>
+
+    <Band />
+
+    <section class="section" aria-labelledby="culture-title">
+      <div class="wrap">
+        <SectionHeader
+          label="How we work"
+          id="culture-title"
+          title="What we value."
+          tone="In clients and in colleagues."
+        />
+        <ul class="chips">
+          {values.map((v) => <li class="reveal">{v}</li>)}
+        </ul>
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .roles { list-style: none; padding: 0; border-top: 1px solid var(--line); }
+  .roles li {
+    display: grid; gap: 16px; padding: 32px 0; border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 768px) { .roles li { grid-template-columns: 1fr auto; align-items: center; } }
+  .meta { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin: 8px 0 12px; }
+
+  .empty {
+    border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface);
+    padding: 32px; display: grid; gap: 16px; justify-items: start; max-width: 720px;
+  }
+  .empty .btn { margin-top: 8px; }
+
+  .chips { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 12px; }
+  .chips li {
+    padding: 12px 18px; border: 1px solid var(--line-strong); border-radius: 999px;
+    color: var(--text); font-size: 17px;
+  }
+</style>

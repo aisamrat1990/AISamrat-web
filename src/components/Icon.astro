@@ -1,0 +1,34 @@
+---
+// Lucide-derived line icons (ISC licence). Decorative by default.
+interface Props {
+  name: 'code' | 'cloud' | 'flow' | 'shield' | 'server' | 'arrow' | 'menu' | 'close' | 'alert' | 'check' | 'mail' | 'pin';
+  class?: string;
+  label?: string;
+}
+const { name, class: className, label } = Astro.props;
+---
+<svg
+  class={className}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden={label ? undefined : 'true'}
+  role={label ? 'img' : undefined}
+  aria-label={label}
+>
+  {name === 'code' && <><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></>}
+  {name === 'cloud' && <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" />}
+  {name === 'flow' && <><rect width="8" height="8" x="3" y="3" rx="2" /><path d="M7 11v4a2 2 0 0 0 2 2h4" /><rect width="8" height="8" x="13" y="13" rx="2" /></>}
+  {name === 'shield' && <><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></>}
+  {name === 'server' && <><rect width="20" height="8" x="2" y="2" rx="2" /><rect width="20" height="8" x="2" y="14" rx="2" /><line x1="6" x2="6.01" y1="6" y2="6" /><line x1="6" x2="6.01" y1="18" y2="18" /></>}
+  {name === 'arrow' && <><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></>}
+  {name === 'menu' && <><line x1="4" x2="20" y1="7" y2="7" /><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="17" y2="17" /></>}
+  {name === 'close' && <><path d="M18 6 6 18" /><path d="m6 6 12 12" /></>}
+  {name === 'alert' && <><circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" /></>}
+  {name === 'check' && <path d="M20 6 9 17l-5-5" />}
+  {name === 'mail' && <><rect width="20" height="16" x="2" y="4" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" /></>}
+  {name === 'pin' && <><path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0" /><circle cx="12" cy="10" r="3" /></>}
+</svg>

@@ -1,0 +1,248 @@
+---
+import Icon from './Icon.astro';
+import { company, services } from '../data/site';
+
+// Set PUBLIC_FORM_ENDPOINT (e.g. a Formspree / Web3Forms / serverless URL) to post submissions.
+// Without it, submitting opens the visitor's email app with the message pre-filled.
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
+---
+<div class="form-wrap">
+  <form
+    class="contact-form"
+    action={endpoint || `mailto:${company.email}`}
+    method="post"
+    enctype={endpoint ? undefined : 'text/plain'}
+    data-endpoint={endpoint}
+    data-email={company.email}
+    novalidate
+  >
+    <div class="summary" tabindex="-1" role="alert" hidden>
+      <p class="summary-title">Please fix the following:</p>
+      <ul></ul>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label for="cf-name">Full name <small>(required)</small></label>
+        <input id="cf-name" name="name" type="text" autocomplete="name" required minlength="2" />
+      </div>
+      <div class="field">
+        <label for="cf-email">Work email <small>(required)</small></label>
+        <input id="cf-email" name="email" type="email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="cf-phone">Phone</label>
+        <input id="cf-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" placeholder="+91" />
+      </div>
+      <div class="field">
+        <label for="cf-company">Company</label>
+        <input id="cf-company" name="company" type="text" autocomplete="organization" />
+      </div>
+      <div class="field full">
+        <label for="cf-service">What do you need help with?</label>
+        <div class="select">
+          <select id="cf-service" name="service">
+            <option value="Not sure yet">Not sure yet</option>
+            {services.map((s) => <option value={s.title}>{s.title}</option>)}
+          </select>
+        </div>
+      </div>
+      <div class="field full">
+        <label for="cf-message">Message <small>(required)</small></label>
+        <textarea id="cf-message" name="message" rows="6" required minlength="10" aria-describedby="cf-message-hint"></textarea>
+        <p class="hint" id="cf-message-hint">A few lines about what you’re working on and your timeline.</p>
+      </div>
+      <!-- Honeypot: hidden from people, filled by bots. -->
+      <div class="hp" aria-hidden="true">
+        <label for="cf-website">Website</label>
+        <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="submit">Send message</button>
+      <p class="status" role="status" aria-live="polite"></p>
+    </div>
+  </form>
+
+  <div class="success" tabindex="-1" hidden>
+    <Icon name="check" class="ok" />
+    <h2 class="h3">Thanks, your message is on its way.</h2>
+    <p class="body-2">We’ll reply to the email you gave us. If it’s urgent, write to <a class="inline-link" href={`mailto:${company.email}`}>{company.email}</a>.</p>
+  </div>
+</div>
+
+<template id="err-icon"><Icon name="alert" /></template>
+
+<style>
+  .grid { display: grid; gap: 24px; }
+  @media (min-width: 640px) { .grid { grid-template-columns: 1fr 1fr; } .full { grid-column: 1 / -1; } }
+  .field { display: grid; gap: 8px; align-content: start; }
+  label { font-size: 14px; color: var(--text-2); }
+  label small { color: var(--text-3); font-size: 13px; }
+  input, select, textarea {
+    width: 100%; border-radius: 8px; border: 1px solid var(--field); background: var(--raised);
+    color: var(--text); font: 400 16px/1.5 var(--font-sans);
+    transition: border-color var(--dur) var(--ease);
+  }
+  input, select { height: 48px; padding: 0 14px; }
+  textarea { padding: 12px 14px; resize: vertical; min-height: 144px; }
+  input::placeholder { color: var(--text-3); }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 3px; border-color: var(--accent); }
+  .select { position: relative; }
+  select { appearance: none; padding-right: 40px; cursor: pointer; }
+  .select::after {
+    content: ""; position: absolute; right: 16px; top: 50%; width: 8px; height: 8px; pointer-events: none;
+    border-right: 1.5px solid var(--text-2); border-bottom: 1.5px solid var(--text-2); transform: translateY(-70%) rotate(45deg);
+  }
+  .hint { font-size: 13px; color: var(--text-3); }
+  [aria-invalid='true'] { border-color: var(--danger); }
+  :global(.err) { display: flex; gap: 6px; align-items: flex-start; color: var(--danger); font-size: 14px; }
+  :global(.err svg) { width: 16px; height: 16px; flex: none; margin-top: 3px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .summary {
+    border: 1px solid var(--danger); border-radius: 12px; padding: 16px 20px; margin-bottom: 32px; background: var(--surface);
+  }
+  .summary:focus-visible { outline-offset: 4px; }
+  .summary-title { font-weight: 600; margin-bottom: 8px; }
+  .summary ul { padding-left: 18px; display: grid; gap: 4px; }
+  .summary :global(a) { color: var(--danger); text-decoration: underline; text-underline-offset: 3px; }
+
+  .actions { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 16px; }
+  .actions .btn[disabled] { opacity: .6; cursor: progress; }
+  .status { color: var(--text-2); font-size: 14px; max-width: 48ch; }
+  .status.is-error { color: var(--danger); }
+
+  /* Sits inside the contact page's bordered panel, so no second border here. */
+  .success { display: grid; gap: 12px; padding: 8px 0; }
+  .success:focus-visible { outline-offset: 8px; }
+  .success :global(.ok) { width: 28px; height: 28px; color: var(--success); }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('.contact-form');
+  if (form) {
+    const summary = form.querySelector<HTMLDivElement>('.summary')!;
+    const summaryList = summary.querySelector('ul')!;
+    const status = form.querySelector<HTMLParagraphElement>('.status')!;
+    const submit = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const success = document.querySelector<HTMLDivElement>('.success')!;
+    const errIcon = (document.getElementById('err-icon') as HTMLTemplateElement).content;
+    const endpoint = form.dataset.endpoint || '';
+    const email = form.dataset.email || '';
+
+    type Rule = { id: string; label: string; check: (v: string) => string | null };
+    const rules: Rule[] = [
+      { id: 'cf-name', label: 'Full name', check: (v) => (v.trim().length < 2 ? 'Enter your full name.' : null) },
+      {
+        id: 'cf-email', label: 'Work email',
+        check: (v) => (!v.trim() ? 'Enter your email address.' : /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? null : 'Enter an email address like name@company.com.'),
+      },
+      {
+        id: 'cf-phone', label: 'Phone',
+        check: (v) => {
+          const digits = v.replace(/\D/g, '');
+          if (!v.trim() || v.trim() === '+91') return null;
+          return digits.length >= 10 && digits.length <= 13 ? null : 'Enter a 10-digit mobile number, with country code if outside India.';
+        },
+      },
+      { id: 'cf-message', label: 'Message', check: (v) => (v.trim().length < 10 ? 'Tell us a little more, at least a sentence.' : null) },
+    ];
+
+    const setError = (el: HTMLInputElement | HTMLTextAreaElement, msg: string | null) => {
+      const errId = `${el.id}-err`;
+      el.parentElement!.querySelector(`#${errId}`)?.remove();
+      const described = (el.getAttribute('aria-describedby') || '').split(' ').filter((x) => x && x !== errId);
+      if (msg) {
+        const p = document.createElement('p');
+        p.className = 'err'; p.id = errId;
+        p.append(errIcon.cloneNode(true), document.createTextNode(msg));
+        (el.closest('.select') || el).after(p);
+        el.setAttribute('aria-invalid', 'true');
+        described.push(errId);
+      } else {
+        el.removeAttribute('aria-invalid');
+      }
+      described.length ? el.setAttribute('aria-describedby', described.join(' ')) : el.removeAttribute('aria-describedby');
+    };
+
+    const validate = () => {
+      const errors: { id: string; msg: string }[] = [];
+      for (const r of rules) {
+        const el = form.querySelector<HTMLInputElement | HTMLTextAreaElement>(`#${r.id}`)!;
+        const msg = r.check(el.value);
+        setError(el, msg);
+        if (msg) errors.push({ id: r.id, msg });
+      }
+      return errors;
+    };
+
+    // Re-check a field once the person leaves it, but only after a first submit attempt.
+    let attempted = false;
+    form.addEventListener('focusout', (e) => {
+      if (!attempted) return;
+      const el = e.target as HTMLInputElement;
+      const r = rules.find((x) => x.id === el.id);
+      if (r) setError(el, r.check(el.value));
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      attempted = true;
+      status.textContent = ''; status.classList.remove('is-error');
+      const errors = validate();
+      summaryList.replaceChildren();
+      if (errors.length) {
+        for (const er of errors) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = `#${er.id}`; a.textContent = er.msg;
+          a.addEventListener('click', (ev) => { ev.preventDefault(); document.getElementById(er.id)?.focus(); });
+          li.append(a); summaryList.append(li);
+        }
+        summary.hidden = false;
+        summary.focus();
+        return;
+      }
+      summary.hidden = true;
+
+      const data = new FormData(form);
+      if ((data.get('website') as string)?.trim()) return; // honeypot tripped: drop silently
+
+      if (!endpoint) {
+        const body = [
+          `Name: ${data.get('name')}`,
+          `Email: ${data.get('email')}`,
+          `Phone: ${data.get('phone') || '-'}`,
+          `Company: ${data.get('company') || '-'}`,
+          `Interested in: ${data.get('service')}`,
+          '',
+          `${data.get('message')}`,
+        ].join('\n');
+        const subject = `Website enquiry from ${data.get('name')}`;
+        window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        status.textContent = `Your email app should open with the message ready to send. If it didn’t, write to ${email}.`;
+        return;
+      }
+
+      submit.disabled = true;
+      const label = submit.textContent;
+      submit.textContent = 'Sending…';
+      try {
+        data.delete('website');
+        const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error(String(res.status));
+        form.hidden = true;
+        success.hidden = false;
+        success.focus();
+      } catch {
+        status.textContent = `Sorry, that didn’t send. Please try again, or email us at ${email}.`;
+        status.classList.add('is-error');
+      } finally {
+        submit.disabled = false;
+        submit.textContent = label;
+      }
+    });
+  }
+</script>

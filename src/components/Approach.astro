@@ -1,0 +1,35 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import { advantages } from '../data/site';
+
+interface Props { text?: string }
+const { text } = Astro.props;
+---
+<section class="section" aria-labelledby="how-title">
+  <div class="wrap">
+    <SectionHeader label="How we work" id="how-title" title="Business first." tone="Technology second." text={text} />
+    <ol class="steps">
+      {advantages.map((a) => (
+        <li class="reveal"><span class="num" aria-hidden="true">{a.num}</span><h3 class="h3">{a.title}</h3><p>{a.text}</p></li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .steps { display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--line); list-style: none; padding: 0; }
+  .steps li { padding: 32px 0; border-bottom: 1px solid var(--line); display: grid; gap: 12px; align-content: start; }
+  @media (min-width: 768px) {
+    .steps { grid-template-columns: repeat(2, 1fr); }
+    .steps li { padding: 32px 32px 32px 0; }
+    .steps li:nth-child(2n) { padding-left: 32px; border-left: 1px solid var(--line); }
+  }
+  @media (min-width: 1024px) {
+    .steps { grid-template-columns: repeat(4, 1fr); }
+    .steps li { border-bottom: 0; padding: 32px 24px 16px 0; }
+    /* same specificity as :nth-child(2n) above, so it wins at this width */
+    .steps li:nth-child(n + 2) { padding-left: 24px; border-left: 1px solid var(--line); }
+  }
+  .num { font-family: var(--font-mono); font-size: 40px; line-height: 1; color: var(--text); letter-spacing: -.02em; }
+  .steps p { color: var(--text-2); font-size: 15px; }
+</style>
